@@ -7,6 +7,7 @@ import BeneficiaryForm, {
   type Beneficiary,
   type BeneficiaryInput,
 } from "@/components/admin/BeneficiaryForm";
+import BeneficiaryFile from "@/components/admin/BeneficiaryFile";
 
 type Duplicate = { id: string; head_name: string; phone: string };
 
@@ -17,6 +18,7 @@ export default function BeneficiariesPanel({
 }) {
   const [loading, setLoading] = useState(true);
   const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
+  const [openId, setOpenId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
@@ -120,6 +122,23 @@ export default function BeneficiariesPanel({
   if (loading) {
     return (
       <p className="py-12 text-center text-muted">جاري تحميل المستفيدين...</p>
+    );
+  }
+
+  // عرض ملف عائلة
+  const opened = beneficiaries.find((b) => b.id === openId);
+  if (opened) {
+    return (
+      <BeneficiaryFile
+        supabase={supabase}
+        beneficiary={opened}
+        onBack={() => setOpenId(null)}
+        onUpdated={(updated) =>
+          setBeneficiaries((bs) =>
+            bs.map((b) => (b.id === updated.id ? updated : b))
+          )
+        }
+      />
     );
   }
 
@@ -285,13 +304,25 @@ export default function BeneficiariesPanel({
                     {b.situation && ` · ${b.situation}`}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => toggleStatus(b)}
-                  className="shrink-0 border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
-                >
-                  {b.status === "active" ? "إيقاف" : "تفعيل"}
-                </button>
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpenId(b.id);
+                      setMessage("");
+                    }}
+                    className="bg-action px-4 py-2 text-sm font-semibold transition-colors hover:bg-action-hover"
+                  >
+                    فتح الملف
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleStatus(b)}
+                    className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+                  >
+                    {b.status === "active" ? "إيقاف" : "تفعيل"}
+                  </button>
+                </div>
               </div>
 
               <dl className="mt-4 grid gap-x-6 gap-y-2 border-t border-line pt-4 text-sm sm:grid-cols-2">
