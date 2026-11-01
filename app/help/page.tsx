@@ -1,10 +1,28 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import HelpForm from "@/components/forms/HelpForm";
 import { siteConfig } from "@/config/site";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export const metadata: Metadata = {
   title: `طلب مساعدة | ${siteConfig.fullName}`,
 };
+
+async function HelpFormLoader() {
+  const supabase = createPublicClient();
+  const { data } = await supabase
+    .from("activities")
+    .select("slug, title")
+    .eq("enabled", true)
+    .order("sort_order", { ascending: true });
+
+  const needTypes = [
+    ...(data ?? []).map((a) => ({ value: a.slug as string, label: a.title as string })),
+    { value: "other", label: "أخرى" },
+  ];
+
+  return <HelpForm needTypes={needTypes} />;
+}
 
 export default function HelpPage() {
   return (
@@ -22,7 +40,11 @@ export default function HelpPage() {
         </ul>
       </div>
 
-      <HelpForm />
+      <Suspense
+        fallback={<div className="h-96 animate-pulse border border-line" />}
+      >
+        <HelpFormLoader />
+      </Suspense>
     </section>
   );
 }

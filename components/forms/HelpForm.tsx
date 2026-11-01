@@ -3,24 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { siteConfig } from "@/config/site";
 
 type Status = "idle" | "sending" | "success";
+type NeedType = { value: string; label: string };
 
 const inputClass =
   "w-full border border-ink bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-action";
 const labelClass = "mb-2 block font-semibold";
 
-export default function HelpForm() {
+export default function HelpForm({ needTypes }: { needTypes: NeedType[] }) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
-
-  const needTypes = [
-    ...siteConfig.activities
-      .filter((a) => a.enabled)
-      .map((a) => ({ value: a.id, label: a.title })),
-    { value: "other", label: "أخرى" },
-  ];
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

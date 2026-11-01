@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { siteConfig } from "@/config/site";
 
 type HelpRequest = {
   id: string;
@@ -27,11 +26,6 @@ const statuses = [
   { value: "rejected", label: "مرفوض" },
 ];
 
-const needLabels: Record<string, string> = Object.fromEntries([
-  ...siteConfig.activities.map((a) => [a.id, a.title]),
-  ["other", "أخرى"],
-]);
-
 export default function HelpRequestsPanel({
   supabase,
 }: {
@@ -39,21 +33,37 @@ export default function HelpRequestsPanel({
 }) {
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState<HelpRequest[]>([]);
+  const [needLabels, setNeedLabels] = useState<Record<string, string>>({
+    other: "أخرى",
+  });
   const [filter, setFilter] = useState("all");
   const [error, setError] = useState("");
 
   const loadRequests = useCallback(async () => {
-    const { data, error: dbError } = await supabase
-      .from("help_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const [requestsRes, activitiesRes] = await Promise.all([
+      supabase
+        .from("help_requests")
+        .select("*")
+        .order("created_at", { ascending: false }),
+      supabase.from("activities").select("slug, title"),
+    ]);
 
-    if (dbError) {
+    if (requestsRes.error) {
       setError("تعذّر تحميل الطلبات.");
     } else {
       setError("");
-      setRequests((data ?? []) as HelpRequest[]);
+      setRequests((requestsRes.data ?? []) as HelpRequest[]);
     }
+
+    if (!activitiesRes.error) {
+      setNeedLabels({
+        ...Object.fromEntries(
+          (activitiesRes.data ?? []).map((a) => [a.slug, a.title])
+        ),
+        other: "أخرى",
+      });
+    }
+
     setLoading(false);
   }, [supabase]);
 
