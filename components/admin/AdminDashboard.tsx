@@ -6,11 +6,13 @@ import { createClient } from "@/lib/supabase/client";
 import HelpRequestsPanel from "@/components/admin/HelpRequestsPanel";
 import VolunteersPanel from "@/components/admin/VolunteersPanel";
 import CampaignsPanel from "@/components/admin/CampaignsPanel";
+import NewsPanel from "@/components/admin/NewsPanel";
 
 const tabs = [
   { id: "help", label: "طلبات المساعدة" },
   { id: "volunteers", label: "المتطوعون" },
   { id: "campaigns", label: "الحملات" },
+  { id: "news", label: "الأخبار" },
 ];
 
 export default function AdminDashboard() {
@@ -87,6 +89,7 @@ export default function AdminDashboard() {
         {tab === "help" && <HelpRequestsPanel supabase={supabase} />}
         {tab === "volunteers" && <VolunteersPanel supabase={supabase} />}
         {tab === "campaigns" && <CampaignsPanel supabase={supabase} />}
+        {tab === "news" && <NewsPanel supabase={supabase} />}
       </div>
     </div>
   );
