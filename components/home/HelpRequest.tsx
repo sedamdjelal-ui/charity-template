@@ -1,10 +1,8 @@
+import Link from "next/link";
 import { siteConfig } from "@/config/site";
 
 export default function HelpRequest() {
-  const { help, contact } = siteConfig;
-  const message = encodeURIComponent(
-    `السلام عليكم، أريد تقديم طلب مساعدة لدى ${siteConfig.fullName}.`
-  );
+  const { help } = siteConfig;
 
   return (
     <section id="help" className="scroll-mt-24 border-y border-line">
@@ -15,14 +13,12 @@ export default function HelpRequest() {
           </h2>
           <span className="mt-4 block h-px w-16 bg-ink" />
           <p className="mt-6 text-lg leading-loose text-muted">{help.intro}</p>
-          <a
-            href={`https://wa.me/${contact.whatsapp}?text=${message}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/help"
             className="mt-8 inline-block bg-action px-8 py-4 font-semibold transition-colors hover:bg-action-hover"
           >
             قدّم طلبك الآن
-          </a>
+          </Link>
         </div>
 
         <div className="border border-ink p-6">

@@ -5,6 +5,10 @@ import Image from "next/image";
 import { useState } from "react";
 import { siteConfig } from "@/config/site";
 
+function resolveHref(href: string) {
+  return href.startsWith("#") ? `/${href}` : href;
+}
+
 export default function Header() {
   const [open, setOpen] = useState(false);
 
@@ -33,7 +37,7 @@ export default function Header() {
           {siteConfig.nav.map((item) => (
             <Link
               key={item.href}
-              href={item.href}
+              href={resolveHref(item.href)}
               className="transition-colors hover:text-muted"
             >
               {item.label}
@@ -43,7 +47,7 @@ export default function Header() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="#donate"
+            href="/#donate"
             className="bg-action px-5 py-2 font-semibold transition-colors hover:bg-action-hover"
           >
             تبرّع
@@ -65,7 +69,7 @@ export default function Header() {
           {siteConfig.nav.map((item) => (
             <Link
               key={item.href}
-              href={item.href}
+              href={resolveHref(item.href)}
               onClick={() => setOpen(false)}
               className="block border-b border-line px-4 py-4"
             >

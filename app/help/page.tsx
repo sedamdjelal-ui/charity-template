@@ -1,0 +1,28 @@
+import type { Metadata } from "next";
+import HelpForm from "@/components/forms/HelpForm";
+import { siteConfig } from "@/config/site";
+
+export const metadata: Metadata = {
+  title: `طلب مساعدة | ${siteConfig.fullName}`,
+};
+
+export default function HelpPage() {
+  return (
+    <section className="mx-auto max-w-3xl px-4 py-16">
+      <h1 className="font-heading text-4xl font-bold">طلب مساعدة</h1>
+      <span className="mt-4 block h-px w-16 bg-ink" />
+      <p className="mt-6 leading-loose text-muted">{siteConfig.help.intro}</p>
+
+      <div className="my-10 border border-line p-5">
+        <p className="font-semibold">الوثائق التي ستُطلب منك لاحقاً:</p>
+        <ul className="mt-3 list-inside list-disc space-y-1 text-muted">
+          {siteConfig.help.documents.map((doc) => (
+            <li key={doc}>{doc}</li>
+          ))}
+        </ul>
+      </div>
+
+      <HelpForm />
+    </section>
+  );
+}
