@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Amiri, Noto_Naskh_Arabic } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
+import Header from "@/components/home/Header";
 import Footer from "@/components/Footer";
 import { siteConfig } from "@/config/site";
 
