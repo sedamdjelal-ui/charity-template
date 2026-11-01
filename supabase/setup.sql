@@ -398,3 +398,23 @@ insert into public.site_settings (id, data) values (1, '{
 --    select id, 'اسم الرئيس', 'president'
 --    from auth.users where email = 'بريد_الرئيس';
 -- =====================================================
+-- =========================================
+-- مخزن صور الموقع (صورة الواجهة، الشعار لاحقاً)
+-- الكل يرى الصور، والرئيس فقط يرفع ويعدّل ويحذف
+-- =========================================
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('site', 'site', true, 3145728, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do nothing;
+
+create policy "President can upload site images"
+  on storage.objects for insert to authenticated
+  with check (bucket_id = 'site' and public.is_president());
+
+create policy "President can update site images"
+  on storage.objects for update to authenticated
+  using (bucket_id = 'site' and public.is_president())
+  with check (bucket_id = 'site' and public.is_president());
+
+create policy "President can delete site images"
+  on storage.objects for delete to authenticated
+  using (bucket_id = 'site' and public.is_president());
