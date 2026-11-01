@@ -16,29 +16,55 @@ type Result<T = undefined> =
   | { ok: true; data?: T }
   | { ok: false; error: string };
 
-// التحقق أن صاحب الطلب رئيس مفعّل
-async function requirePresident(): Promise<string | null> {
+type Check = { ok: true; userId: string } | { ok: false; error: string };
+
+// التحقق أن صاحب الطلب رئيس مفعّل، مع سبب واضح عند الفشل
+async function requirePresident(): Promise<Check> {
   const supabase = await createServerSupabase();
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
-  if (!user) return null;
+
+  if (!user) {
+    console.error("[members] no user session:", authError?.message);
+    return {
+      ok: false,
+      error: "لم يتم التعرف على جلسة الدخول. اخرج ثم ادخل من جديد.",
+    };
+  }
 
   const admin = createAdminClient();
-  const { data } = await admin
+  const { data, error } = await admin
     .from("members")
     .select("role, active")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!data || !data.active || data.role !== "president") return null;
-  return user.id;
+  if (error) {
+    console.error("[members] admin query failed:", error.message);
+    return {
+      ok: false,
+      error:
+        "تعذّر التحقق من الصلاحيات. تأكد أن SUPABASE_SECRET_KEY هو المفتاح السري (sb_secret_) وليس العام.",
+    };
+  }
+
+  if (!data) {
+    console.error("[members] user is not in members table:", user.id);
+    return { ok: false, error: "حسابك غير مسجّل في جدول الأعضاء." };
+  }
+
+  if (!data.active || data.role !== "president") {
+    return { ok: false, error: "هذه العملية للرئيس فقط." };
+  }
+
+  return { ok: true, userId: user.id };
 }
 
-const notAllowed = { ok: false as const, error: "هذه العملية للرئيس فقط." };
-
 export async function listMembers(): Promise<Result<Member[]>> {
-  if (!(await requirePresident())) return notAllowed;
+  const check = await requirePresident();
+  if (!check.ok) return check;
 
   const admin = createAdminClient();
   const [membersRes, usersRes] = await Promise.all([
@@ -50,6 +76,11 @@ export async function listMembers(): Promise<Result<Member[]>> {
   ]);
 
   if (membersRes.error || usersRes.error) {
+    console.error(
+      "[members] list failed:",
+      membersRes.error?.message,
+      usersRes.error?.message
+    );
     return { ok: false, error: "تعذّر تحميل الأعضاء." };
   }
 
@@ -72,7 +103,8 @@ export async function createMember(input: {
   password: string;
   role: "president" | "member";
 }): Promise<Result> {
-  if (!(await requirePresident())) return notAllowed;
+  const check = await requirePresident();
+  if (!check.ok) return check;
 
   const fullName = input.fullName.trim();
   const email = input.email.trim().toLowerCase();
@@ -100,14 +132,13 @@ export async function createMember(input: {
     });
 
   if (authError || !created.user) {
+    console.error("[members] create user failed:", authError?.message);
     const exists =
       authError?.code === "email_exists" ||
       authError?.message?.toLowerCase().includes("already");
     return {
       ok: false,
-      error: exists
-        ? "هذا البريد مسجّل مسبقاً."
-        : "تعذّر إنشاء الحساب.",
+      error: exists ? "هذا البريد مسجّل مسبقاً." : "تعذّر إنشاء الحساب.",
     };
   }
 
@@ -118,6 +149,7 @@ export async function createMember(input: {
   });
 
   if (memberError) {
+    console.error("[members] insert member failed:", memberError.message);
     // تراجع: حذف الحساب حتى لا يبقى حساب بلا عضوية
     await admin.auth.admin.deleteUser(created.user.id);
     return { ok: false, error: "تعذّر تسجيل العضو." };
@@ -130,10 +162,10 @@ export async function setMemberActive(
   userId: string,
   active: boolean
 ): Promise<Result> {
-  const presidentId = await requirePresident();
-  if (!presidentId) return notAllowed;
+  const check = await requirePresident();
+  if (!check.ok) return check;
 
-  if (userId === presidentId && !active) {
+  if (userId === check.userId && !active) {
     return { ok: false, error: "لا يمكنك إيقاف حسابك أنت." };
   }
 
@@ -144,7 +176,10 @@ export async function setMemberActive(
     .update({ active })
     .eq("user_id", userId);
 
-  if (error) return { ok: false, error: "تعذّر تغيير حالة العضو." };
+  if (error) {
+    console.error("[members] set active failed:", error.message);
+    return { ok: false, error: "تعذّر تغيير حالة العضو." };
+  }
 
   // منع الدخول نهائياً للعضو الموقوف، وإعادته عند التفعيل
   await admin.auth.admin.updateUserById(userId, {
@@ -158,13 +193,13 @@ export async function setMemberRole(
   userId: string,
   role: "president" | "member"
 ): Promise<Result> {
-  const presidentId = await requirePresident();
-  if (!presidentId) return notAllowed;
+  const check = await requirePresident();
+  if (!check.ok) return check;
 
   if (!["president", "member"].includes(role)) {
     return { ok: false, error: "الدور غير صحيح." };
   }
-  if (userId === presidentId && role !== "president") {
+  if (userId === check.userId && role !== "president") {
     return {
       ok: false,
       error: "لا يمكنك إزالة الرئاسة عن نفسك. عيّن رئيساً آخر ليفعل ذلك.",
@@ -177,7 +212,10 @@ export async function setMemberRole(
     .update({ role })
     .eq("user_id", userId);
 
-  if (error) return { ok: false, error: "تعذّر تغيير الدور." };
+  if (error) {
+    console.error("[members] set role failed:", error.message);
+    return { ok: false, error: "تعذّر تغيير الدور." };
+  }
   return { ok: true };
 }
 
@@ -185,7 +223,8 @@ export async function resetMemberPassword(
   userId: string,
   password: string
 ): Promise<Result> {
-  if (!(await requirePresident())) return notAllowed;
+  const check = await requirePresident();
+  if (!check.ok) return check;
 
   if (password.length < 8) {
     return { ok: false, error: "كلمة السر 8 أحرف على الأقل." };
@@ -196,6 +235,9 @@ export async function resetMemberPassword(
     password,
   });
 
-  if (error) return { ok: false, error: "تعذّر تغيير كلمة السر." };
+  if (error) {
+    console.error("[members] reset password failed:", error.message);
+    return { ok: false, error: "تعذّر تغيير كلمة السر." };
+  }
   return { ok: true };
 }
