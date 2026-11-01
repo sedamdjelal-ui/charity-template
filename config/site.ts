@@ -73,6 +73,34 @@ export const siteConfig = {
     },
   ],
 
+  // الحملات الجارية (المبالغ بالدينار، enabled: false يخفي الحملة)
+  campaigns: [
+    {
+      id: "winter-2026",
+      title: "حملة الشتاء الدافئ",
+      description: "توفير الأغطية والملابس الشتوية ووسائل التدفئة لـ 200 عائلة.",
+      goal: 1500000,
+      raised: 920000,
+      enabled: true,
+    },
+    {
+      id: "surgery-help",
+      title: "صندوق العمليات الجراحية",
+      description: "المساهمة في تكاليف العمليات للمرضى غير القادرين على الدفع.",
+      goal: 2000000,
+      raised: 640000,
+      enabled: true,
+    },
+    {
+      id: "orphans-2026",
+      title: "كفالة 50 يتيماً",
+      description: "كفالة شهرية تغطي الغذاء والدراسة والعلاج لمدة سنة كاملة.",
+      goal: 3000000,
+      raised: 2310000,
+      enabled: true,
+    },
+  ],
+
   // القائمة
   nav: [
     { label: "الرئيسية", href: "/" },
