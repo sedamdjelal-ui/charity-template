@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Amiri, Noto_Naskh_Arabic } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { siteConfig } from "@/config/site";
 
 const amiri = Amiri({
   subsets: ["arabic"],
@@ -17,8 +20,8 @@ const naskh = Noto_Naskh_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "جمعية يد العون الخيرية",
-  description: "جمعية خيرية للتضامن ومساعدة العائلات المحتاجة",
+  title: siteConfig.fullName,
+  description: siteConfig.tagline,
 };
 
 export default function RootLayout({
@@ -28,8 +31,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl" className={`${amiri.variable} ${naskh.variable}`}>
-      <body className="bg-white text-ink font-body antialiased">
-        {children}
+      <body className="flex min-h-screen flex-col bg-white font-body text-ink antialiased">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
       </body>
     </html>
   );
