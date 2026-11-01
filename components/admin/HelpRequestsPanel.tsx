@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import BeneficiaryForm, {
+  type BeneficiaryInput,
+} from "@/components/admin/BeneficiaryForm";
 
 type HelpRequest = {
   id: string;
@@ -18,6 +21,8 @@ type HelpRequest = {
   status: string;
 };
 
+type Duplicate = { id: string; head_name: string };
+
 const statuses = [
   { value: "new", label: "جديد" },
   { value: "reviewing", label: "قيد الدراسة" },
@@ -25,6 +30,8 @@ const statuses = [
   { value: "served", label: "تمّت المساعدة" },
   { value: "rejected", label: "مرفوض" },
 ];
+
+const convertibleStatuses = ["accepted", "served"];
 
 export default function HelpRequestsPanel({
   supabase,
@@ -36,16 +43,26 @@ export default function HelpRequestsPanel({
   const [needLabels, setNeedLabels] = useState<Record<string, string>>({
     other: "أخرى",
   });
+  const [convertedIds, setConvertedIds] = useState<string[]>([]);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
+  const [pending, setPending] = useState<BeneficiaryInput | null>(null);
+  const [duplicates, setDuplicates] = useState<Duplicate[]>([]);
+  const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState("all");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const loadRequests = useCallback(async () => {
-    const [requestsRes, activitiesRes] = await Promise.all([
+    const [requestsRes, activitiesRes, convertedRes] = await Promise.all([
       supabase
         .from("help_requests")
         .select("*")
         .order("created_at", { ascending: false }),
       supabase.from("activities").select("slug, title"),
+      supabase
+        .from("beneficiaries")
+        .select("help_request_id")
+        .not("help_request_id", "is", null),
     ]);
 
     if (requestsRes.error) {
@@ -62,6 +79,12 @@ export default function HelpRequestsPanel({
         ),
         other: "أخرى",
       });
+    }
+
+    if (!convertedRes.error) {
+      setConvertedIds(
+        (convertedRes.data ?? []).map((b) => b.help_request_id as string)
+      );
     }
 
     setLoading(false);
@@ -84,6 +107,82 @@ export default function HelpRequestsPanel({
       setRequests(previous);
       setError("تعذّر تحديث الحالة. حاول مرة أخرى.");
     }
+  }
+
+  function startConvert(id: string) {
+    setConvertingId(id);
+    setPending(null);
+    setDuplicates([]);
+    setError("");
+    setMessage("");
+  }
+
+  function cancelConvert() {
+    setConvertingId(null);
+    setPending(null);
+    setDuplicates([]);
+    setError("");
+  }
+
+  async function insertBeneficiary(values: BeneficiaryInput) {
+    if (!convertingId) return;
+
+    setSaving(true);
+    const { error: dbError } = await supabase
+      .from("beneficiaries")
+      .insert({ ...values, help_request_id: convertingId });
+    setSaving(false);
+
+    if (dbError) {
+      setError(
+        dbError.code === "23505"
+          ? "هذا الطلب أو رقم التعريف الوطني مسجّل مسبقاً في المستفيدين."
+          : "تعذّر الحفظ. تأكد من البيانات."
+      );
+      return;
+    }
+
+    setConvertedIds((ids) => [...ids, convertingId]);
+    setConvertingId(null);
+    setPending(null);
+    setDuplicates([]);
+    setMessage(
+      `تم تسجيل «${values.head_name}» في المستفيدين ✓ يمكنك فتح ملفه من تبويب «المستفيدون».`
+    );
+  }
+
+  async function handleConvert(values: BeneficiaryInput) {
+    setError("");
+    setPending(null);
+    setDuplicates([]);
+
+    // 1. رقم التعريف الوطني: منع نهائي
+    if (values.national_id) {
+      const { data } = await supabase
+        .from("beneficiaries")
+        .select("head_name")
+        .eq("national_id", values.national_id)
+        .maybeSingle();
+
+      if (data) {
+        setError(`رقم التعريف الوطني مسجّل مسبقاً باسم: ${data.head_name}`);
+        return;
+      }
+    }
+
+    // 2. رقم الهاتف: تنبيه فقط
+    const { data: samePhone } = await supabase
+      .from("beneficiaries")
+      .select("id, head_name")
+      .eq("phone", values.phone);
+
+    if (samePhone && samePhone.length > 0) {
+      setPending(values);
+      setDuplicates(samePhone as Duplicate[]);
+      return;
+    }
+
+    await insertBeneficiary(values);
   }
 
   if (loading) {
@@ -130,7 +229,12 @@ export default function HelpRequestsPanel({
         </button>
       </div>
 
-      {error && (
+      {message && (
+        <p className="mt-6 border border-ink bg-action px-4 py-3 font-semibold">
+          {message}
+        </p>
+      )}
+      {error && !convertingId && (
         <p className="mt-6 border border-ink px-4 py-3 font-semibold">⚠ {error}</p>
       )}
 
@@ -146,6 +250,9 @@ export default function HelpRequestsPanel({
           const address = [r.street, r.commune, r.daira, r.wilaya]
             .filter(Boolean)
             .join("، ");
+          const isConverted = convertedIds.includes(r.id);
+          const canConvert =
+            convertibleStatuses.includes(r.status) && !isConverted;
 
           return (
             <article key={r.id} className="border border-ink p-5">
@@ -160,6 +267,7 @@ export default function HelpRequestsPanel({
                       month: "long",
                       day: "numeric",
                     })}
+                    {isConverted && " · مسجّل في المستفيدين ✓"}
                   </p>
                 </div>
 
@@ -207,6 +315,87 @@ export default function HelpRequestsPanel({
                 <p className="mt-4 border-t border-line pt-4 leading-relaxed text-muted">
                   {r.description}
                 </p>
+              )}
+
+              {/* زر التحويل */}
+              {canConvert && convertingId !== r.id && (
+                <div className="mt-4 border-t border-line pt-4">
+                  <button
+                    type="button"
+                    onClick={() => startConvert(r.id)}
+                    disabled={convertingId !== null}
+                    className="bg-action px-5 py-2 font-semibold transition-colors hover:bg-action-hover disabled:opacity-60"
+                  >
+                    تحويل إلى مستفيد
+                  </button>
+                </div>
+              )}
+
+              {/* نموذج التحويل */}
+              {convertingId === r.id && (
+                <div className="mt-4 border-t border-line pt-4">
+                  <p className="mb-4 font-semibold">
+                    راجع البيانات، وأضف رقم التعريف الوطني إن توفّر، ثم احفظ:
+                  </p>
+
+                  {error && (
+                    <p className="mb-4 border border-ink px-4 py-3 font-semibold">
+                      ⚠ {error}
+                    </p>
+                  )}
+
+                  {pending && duplicates.length > 0 && (
+                    <div className="mb-4 border-2 border-ink p-5">
+                      <p className="font-semibold">
+                        ⚠ رقم الهاتف {pending.phone} مسجّل مسبقاً لـ:
+                      </p>
+                      <ul className="mt-2 list-inside list-disc text-muted">
+                        {duplicates.map((d) => (
+                          <li key={d.id}>{d.head_name}</li>
+                        ))}
+                      </ul>
+                      <div className="mt-4 flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => insertBeneficiary(pending)}
+                          disabled={saving}
+                          className="border border-ink px-5 py-2 font-semibold transition-colors hover:bg-ink hover:text-white disabled:opacity-60"
+                        >
+                          عائلة مختلفة، سجّلها
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPending(null);
+                            setDuplicates([]);
+                          }}
+                          className="bg-action px-5 py-2 font-semibold transition-colors hover:bg-action-hover"
+                        >
+                          تراجع
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <BeneficiaryForm
+                    initial={{
+                      head_name: r.full_name,
+                      national_id: null,
+                      phone: r.phone,
+                      wilaya: r.wilaya,
+                      daira: r.daira,
+                      commune: r.commune,
+                      street: r.street,
+                      family_size: r.family_size,
+                      situation: needLabels[r.need_type] ?? null,
+                      notes: r.description,
+                    }}
+                    saving={saving}
+                    submitLabel="تسجيل كمستفيد"
+                    onSave={handleConvert}
+                    onCancel={cancelConvert}
+                  />
+                </div>
               )}
             </article>
           );
