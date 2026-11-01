@@ -22,3 +22,79 @@
     scroll-behavior: smooth;
   }
 }
+
+/* ===== الحركات ===== */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ظهور عند فتح الصفحة */
+.animate-fade-up {
+  animation: fade-up 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* ظهور عند التمرير */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 0.9s ease,
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* امتلاء أشرطة التقدّم من اليمين */
+.progress-fill {
+  transform-origin: right;
+  animation: grow 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both;
+}
+.reveal .progress-fill {
+  animation-play-state: paused;
+}
+.reveal.is-visible .progress-fill {
+  animation-play-state: running;
+}
+
+/* احترام خيار «تقليل الحركة» */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-fade-up,
+  .progress-fill {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* الأزرار ذات الإطار: أخضر فاتح عند المرور */
+.btn-outline {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.btn-outline:hover {
+  background-color: var(--color-action);
+  color: var(--color-ink);
+}

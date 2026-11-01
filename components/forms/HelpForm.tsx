@@ -121,7 +121,7 @@ export default function HelpForm({ needTypes }: { needTypes: NeedType[] }) {
         </p>
         <Link
           href="/"
-          className="mt-8 inline-block border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="mt-8 inline-block border border-ink px-6 py-3 font-semibold btn-outline"
         >
           العودة للرئيسية
         </Link>

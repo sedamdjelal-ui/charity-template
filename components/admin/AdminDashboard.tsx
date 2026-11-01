@@ -94,7 +94,7 @@ export default function AdminDashboard() {
         <button
           type="button"
           onClick={handleLogout}
-          className="mt-8 border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="mt-8 border border-ink px-6 py-3 font-semibold btn-outline"
         >
           خروج
         </button>
@@ -118,7 +118,7 @@ export default function AdminDashboard() {
         <button
           type="button"
           onClick={handleLogout}
-          className="border border-ink px-4 py-2 font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="border border-ink px-4 py-2 font-semibold btn-outline"
         >
           خروج
         </button>

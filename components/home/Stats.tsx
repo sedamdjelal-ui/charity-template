@@ -1,4 +1,5 @@
 import { getSettings } from "@/lib/settings";
+import CountUp from "@/components/CountUp";
 
 export default async function Stats() {
   const { stats } = await getSettings();
@@ -18,7 +19,7 @@ export default async function Stats() {
             } ${i === 3 ? "md:border-l-0" : ""}`}
           >
             <p className="font-heading text-4xl font-bold md:text-5xl" dir="ltr">
-              {stat.value}
+              <CountUp value={stat.value} />
             </p>
             <p className="mt-2 text-muted">{stat.label}</p>
           </div>

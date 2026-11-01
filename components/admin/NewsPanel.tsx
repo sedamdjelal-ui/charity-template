@@ -119,7 +119,7 @@ function NewsForm({
         <button
           type="button"
           onClick={onCancel}
-          className="border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="border border-ink px-6 py-3 font-semibold btn-outline"
         >
           إلغاء
         </button>
@@ -224,7 +224,7 @@ export default function NewsPanel({ supabase }: { supabase: SupabaseClient }) {
         <button
           type="button"
           onClick={loadNews}
-          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold btn-outline"
         >
           تحديث ⟳
         </button>
@@ -295,7 +295,7 @@ export default function NewsPanel({ supabase }: { supabase: SupabaseClient }) {
                     type="button"
                     onClick={() => setEditingId(item.id)}
                     disabled={editingId !== null}
-                    className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white disabled:opacity-60"
+                    className="border border-ink px-4 py-2 text-sm font-semibold btn-outline disabled:opacity-60"
                   >
                     تعديل
                   </button>
@@ -303,7 +303,7 @@ export default function NewsPanel({ supabase }: { supabase: SupabaseClient }) {
                     type="button"
                     onClick={() => togglePublished(item)}
                     disabled={editingId !== null}
-                    className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white disabled:opacity-60"
+                    className="border border-ink px-4 py-2 text-sm font-semibold btn-outline disabled:opacity-60"
                   >
                     {item.published ? "إخفاء" : "نشر"}
                   </button>
@@ -311,7 +311,7 @@ export default function NewsPanel({ supabase }: { supabase: SupabaseClient }) {
                     type="button"
                     onClick={() => handleDelete(item)}
                     disabled={editingId !== null}
-                    className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white disabled:opacity-60"
+                    className="border border-ink px-4 py-2 text-sm font-semibold btn-outline disabled:opacity-60"
                   >
                     حذف
                   </button>

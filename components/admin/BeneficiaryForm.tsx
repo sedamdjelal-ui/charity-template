@@ -298,7 +298,7 @@ export default function BeneficiaryForm({
         <button
           type="button"
           onClick={onCancel}
-          className="border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="border border-ink px-6 py-3 font-semibold btn-outline"
         >
           إلغاء
         </button>

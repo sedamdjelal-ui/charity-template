@@ -111,7 +111,7 @@ function ActivityForm({
         <button
           type="button"
           onClick={onCancel}
-          className="border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="border border-ink px-6 py-3 font-semibold btn-outline"
         >
           إلغاء
         </button>
@@ -224,7 +224,7 @@ export default function ActivitiesPanel({
         <button
           type="button"
           onClick={loadActivities}
-          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold btn-outline"
         >
           تحديث ⟳
         </button>
@@ -291,7 +291,7 @@ export default function ActivitiesPanel({
                     type="button"
                     onClick={() => setEditingId(a.id)}
                     disabled={editingId !== null}
-                    className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white disabled:opacity-60"
+                    className="border border-ink px-4 py-2 text-sm font-semibold btn-outline disabled:opacity-60"
                   >
                     تعديل
                   </button>
@@ -299,7 +299,7 @@ export default function ActivitiesPanel({
                     type="button"
                     onClick={() => toggleEnabled(a)}
                     disabled={editingId !== null}
-                    className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white disabled:opacity-60"
+                    className="border border-ink px-4 py-2 text-sm font-semibold btn-outline disabled:opacity-60"
                   >
                     {a.enabled ? "إخفاء" : "إظهار"}
                   </button>
@@ -307,7 +307,7 @@ export default function ActivitiesPanel({
                     type="button"
                     onClick={() => handleDelete(a)}
                     disabled={editingId !== null}
-                    className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white disabled:opacity-60"
+                    className="border border-ink px-4 py-2 text-sm font-semibold btn-outline disabled:opacity-60"
                   >
                     حذف
                   </button>

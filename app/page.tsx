@@ -7,19 +7,34 @@ import Donate from "@/components/home/Donate";
 import HelpRequest from "@/components/home/HelpRequest";
 import Volunteer from "@/components/home/Volunteer";
 import News from "@/components/home/News";
+import Reveal from "@/components/Reveal";
 
 export default function Home() {
   return (
     <>
       <Hero />
       <Stats />
-      <About />
-      <Activities />
-      <Campaigns />
-      <Donate />
-      <HelpRequest />
-      <Volunteer />
-      <News />
+      <Reveal>
+        <About />
+      </Reveal>
+      <Reveal>
+        <Activities />
+      </Reveal>
+      <Reveal>
+        <Campaigns />
+      </Reveal>
+      <Reveal>
+        <Donate />
+      </Reveal>
+      <Reveal>
+        <HelpRequest />
+      </Reveal>
+      <Reveal>
+        <Volunteer />
+      </Reveal>
+      <Reveal>
+        <News />
+      </Reveal>
     </>
   );
 }

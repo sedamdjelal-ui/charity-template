@@ -221,7 +221,7 @@ export default function BeneficiaryFile({
       <button
         type="button"
         onClick={onBack}
-        className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+        className="border border-ink px-4 py-2 text-sm font-semibold btn-outline"
       >
         العودة للقائمة
       </button>
@@ -258,7 +258,7 @@ export default function BeneficiaryFile({
               <button
                 type="button"
                 onClick={() => setEditing(true)}
-                className="shrink-0 border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+                className="shrink-0 border border-ink px-4 py-2 text-sm font-semibold btn-outline"
               >
                 تعديل البيانات
               </button>
@@ -344,7 +344,7 @@ export default function BeneficiaryFile({
               type="button"
               onClick={() => insertAid(pendingAid)}
               disabled={saving}
-              className="border border-ink px-5 py-2 font-semibold transition-colors hover:bg-ink hover:text-white disabled:opacity-60"
+              className="border border-ink px-5 py-2 font-semibold btn-outline disabled:opacity-60"
             >
               سجّلها رغم ذلك
             </button>
@@ -464,7 +464,7 @@ export default function BeneficiaryFile({
                 setPendingAid(null);
                 setError("");
               }}
-              className="border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
+              className="border border-ink px-6 py-3 font-semibold btn-outline"
             >
               إلغاء
             </button>

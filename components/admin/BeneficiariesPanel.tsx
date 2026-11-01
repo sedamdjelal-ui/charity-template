@@ -171,7 +171,7 @@ export default function BeneficiariesPanel({
         <button
           type="button"
           onClick={loadBeneficiaries}
-          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold btn-outline"
         >
           تحديث ⟳
         </button>
@@ -205,7 +205,7 @@ export default function BeneficiariesPanel({
               type="button"
               onClick={() => insertBeneficiary(pending)}
               disabled={saving}
-              className="border border-ink px-5 py-2 font-semibold transition-colors hover:bg-ink hover:text-white disabled:opacity-60"
+              className="border border-ink px-5 py-2 font-semibold btn-outline disabled:opacity-60"
             >
               عائلة مختلفة، أضفها
             </button>
@@ -318,7 +318,7 @@ export default function BeneficiariesPanel({
                   <button
                     type="button"
                     onClick={() => toggleStatus(b)}
-                    className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+                    className="border border-ink px-4 py-2 text-sm font-semibold btn-outline"
                   >
                     {b.status === "active" ? "إيقاف" : "تفعيل"}
                   </button>

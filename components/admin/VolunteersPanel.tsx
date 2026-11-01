@@ -109,7 +109,7 @@ export default function VolunteersPanel({
         <button
           type="button"
           onClick={loadVolunteers}
-          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold btn-outline"
         >
           تحديث ⟳
         </button>

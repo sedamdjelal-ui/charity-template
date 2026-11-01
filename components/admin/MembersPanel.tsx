@@ -166,7 +166,7 @@ export default function MembersPanel({
         <button
           type="button"
           onClick={loadMembers}
-          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+          className="ms-auto border border-ink px-4 py-2 text-sm font-semibold btn-outline"
         >
           تحديث ⟳
         </button>
@@ -193,7 +193,7 @@ export default function MembersPanel({
             <button
               type="button"
               onClick={() => setCredentials(null)}
-              className="border border-ink px-4 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+              className="border border-ink px-4 py-2 text-sm font-semibold btn-outline"
             >
               تم
             </button>
@@ -257,7 +257,7 @@ export default function MembersPanel({
                 <button
                   type="button"
                   onClick={() => setNewPassword(generatePassword())}
-                  className="shrink-0 border border-ink px-3 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+                  className="shrink-0 border border-ink px-3 text-sm font-semibold btn-outline"
                 >
                   توليد
                 </button>
@@ -293,7 +293,7 @@ export default function MembersPanel({
                 setAdding(false);
                 setError("");
               }}
-              className="border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
+              className="border border-ink px-6 py-3 font-semibold btn-outline"
             >
               إلغاء
             </button>
@@ -339,7 +339,7 @@ export default function MembersPanel({
                     <button
                       type="button"
                       onClick={() => toggleRole(m)}
-                      className="border border-ink px-3 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+                      className="border border-ink px-3 py-2 text-sm font-semibold btn-outline"
                     >
                       {m.role === "president" ? "جعله عضواً" : "جعله رئيساً"}
                     </button>
@@ -350,14 +350,14 @@ export default function MembersPanel({
                         setResetPassword(generatePassword());
                         setCredentials(null);
                       }}
-                      className="border border-ink px-3 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+                      className="border border-ink px-3 py-2 text-sm font-semibold btn-outline"
                     >
                       كلمة سر جديدة
                     </button>
                     <button
                       type="button"
                       onClick={() => toggleActive(m)}
-                      className="border border-ink px-3 py-2 text-sm font-semibold transition-colors hover:bg-ink hover:text-white"
+                      className="border border-ink px-3 py-2 text-sm font-semibold btn-outline"
                     >
                       {m.active ? "إيقاف" : "تفعيل"}
                     </button>
@@ -384,7 +384,7 @@ export default function MembersPanel({
                   <button
                     type="button"
                     onClick={() => setResettingId(null)}
-                    className="shrink-0 border border-ink px-5 py-2 font-semibold transition-colors hover:bg-ink hover:text-white"
+                    className="shrink-0 border border-ink px-5 py-2 font-semibold btn-outline"
                   >
                     إلغاء
                   </button>

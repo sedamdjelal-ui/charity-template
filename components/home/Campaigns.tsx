@@ -59,7 +59,7 @@ async function CampaignsList() {
 
               <div className="h-3 w-full border border-ink bg-white">
                 <div
-                  className="h-full bg-action"
+                  className="progress-fill h-full bg-action"
                   style={{ width: `${percent}%` }}
                 />
               </div>

@@ -30,7 +30,7 @@ async function ActivitiesList() {
       {activities.map((activity, i) => (
         <article
           key={activity.id}
-          className="border border-ink p-6 transition-colors hover:bg-ink hover:text-white"
+          className="border border-ink p-6 btn-outline"
         >
           <p className="font-heading text-3xl text-muted" dir="ltr">
             {String(i + 1).padStart(2, "0")}

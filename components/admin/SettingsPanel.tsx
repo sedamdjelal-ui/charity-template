@@ -307,7 +307,7 @@ export default function SettingsPanel({
             <button
               type="button"
               onClick={() => setStats((prev) => prev.filter((_, j) => j !== i))}
-              className="shrink-0 border border-ink px-4 font-semibold transition-colors hover:bg-ink hover:text-white"
+              className="shrink-0 border border-ink px-4 font-semibold btn-outline"
             >
               حذف
             </button>
@@ -317,7 +317,7 @@ export default function SettingsPanel({
           <button
             type="button"
             onClick={() => setStats((prev) => [...prev, { value: "", label: "" }])}
-            className="border border-ink px-4 py-2 font-semibold transition-colors hover:bg-ink hover:text-white"
+            className="border border-ink px-4 py-2 font-semibold btn-outline"
           >
             + إضافة رقم
           </button>

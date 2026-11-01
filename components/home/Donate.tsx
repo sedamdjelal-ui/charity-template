@@ -51,7 +51,7 @@ export default async function Donate() {
               href={`https://wa.me/${contact.whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-block border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
+              className="mt-4 inline-block border border-ink px-6 py-3 font-semibold btn-outline"
             >
               إرسال الوصل عبر واتساب
             </a>
