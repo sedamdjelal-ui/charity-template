@@ -3,12 +3,25 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import AddressFields from "@/components/forms/AddressFields";
 
 type Status = "idle" | "sending" | "success";
+type Errors = Partial<
+  Record<"full_name" | "phone" | "wilaya" | "daira" | "commune" | "consent", string>
+>;
 
-const inputClass =
-  "w-full border border-ink bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-action";
 const labelClass = "mb-2 block font-semibold";
+
+function inputClass(hasError: boolean) {
+  return `w-full bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-action ${
+    hasError ? "border-2 border-ink" : "border border-ink"
+  }`;
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="mt-1 text-sm font-semibold">⚠ {message}</p>;
+}
 
 const skillOptions = [
   "التوزيع الميداني",
@@ -28,47 +41,65 @@ const availabilityOptions = [
 
 export default function VolunteerForm() {
   const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<Errors>({});
+  const [submitError, setSubmitError] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
+    setSubmitError("");
 
     const form = e.currentTarget;
     const data = new FormData(form);
+    const get = (key: string) => String(data.get(key) ?? "").trim();
 
     // حماية من الرسائل الآلية: هذا الحقل مخفي عن البشر
-    if (data.get("website")) {
+    if (get("website")) {
       setStatus("success");
       return;
     }
 
-    const phone = String(data.get("phone") || "").replace(/\s/g, "");
-    if (!/^0[0-9]{8,9}$/.test(phone)) {
-      setError("رقم الهاتف غير صحيح. مثال: 0550123456");
-      return;
+    const selectedSkills = data.getAll("skills").map(String);
+    const otherSkills = get("other_skills");
+    if (otherSkills) selectedSkills.push(otherSkills);
+
+    const values = {
+      full_name: get("full_name"),
+      phone: get("phone").replace(/\s/g, ""),
+      wilaya: get("wilaya"),
+      daira: get("daira"),
+      commune: get("commune"),
+      skills: selectedSkills.length ? selectedSkills.join("، ") : null,
+      availability: get("availability") || null,
+    };
+
+    const found: Errors = {};
+    if (values.full_name.length < 3) {
+      found.full_name = "اكتب الاسم واللقب (3 أحرف على الأقل).";
+    }
+    if (!/^0[0-9]{8,9}$/.test(values.phone)) {
+      found.phone = "رقم الهاتف غير صحيح. مثال: 0550123456";
+    }
+    if (!values.wilaya) found.wilaya = "اختر الولاية.";
+    if (!values.daira) found.daira = "اختر الدائرة.";
+    if (!values.commune) found.commune = "اختر البلدية.";
+    if (!data.get("consent")) {
+      found.consent = "يجب الموافقة لإتمام التسجيل.";
     }
 
-    const selectedSkills = data.getAll("skills").map(String);
-    const otherSkills = String(data.get("other_skills") || "").trim();
-    if (otherSkills) selectedSkills.push(otherSkills);
+    setErrors(found);
+    if (Object.keys(found).length > 0) {
+      document.getElementById(Object.keys(found)[0])?.focus();
+      return;
+    }
 
     setStatus("sending");
 
     const supabase = createClient();
-    const { error: dbError } = await supabase.from("volunteers").insert({
-      full_name: String(data.get("full_name") || "").trim(),
-      phone,
-      wilaya: String(data.get("wilaya") || "").trim(),
-      daira: String(data.get("daira") || "").trim(),
-      commune: String(data.get("commune") || "").trim(),
-      skills: selectedSkills.length ? selectedSkills.join("، ") : null,
-      availability: String(data.get("availability") || "") || null,
-    });
+    const { error: dbError } = await supabase.from("volunteers").insert(values);
 
     if (dbError) {
       setStatus("idle");
-      setError("حدث خطأ أثناء الإرسال. تأكد من البيانات وحاول مرة أخرى.");
+      setSubmitError("حدث خطأ أثناء الإرسال. حاول مرة أخرى.");
       return;
     }
 
@@ -96,11 +127,17 @@ export default function VolunteerForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6">
       {/* حقل مخفي ضد الرسائل الآلية */}
       <div className="hidden" aria-hidden="true">
         <input type="text" name="website" tabIndex={-1} autoComplete="off" />
       </div>
+
+      {Object.keys(errors).length > 0 && (
+        <p className="border border-ink px-4 py-3 font-semibold">
+          ⚠ توجد أخطاء في النموذج، صحّحها ثم أعد الإرسال.
+        </p>
+      )}
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
@@ -110,11 +147,11 @@ export default function VolunteerForm() {
           <input
             id="full_name"
             name="full_name"
-            required
-            minLength={3}
             maxLength={100}
-            className={inputClass}
+            aria-invalid={!!errors.full_name}
+            className={inputClass(!!errors.full_name)}
           />
+          <FieldError message={errors.full_name} />
         </div>
         <div>
           <label htmlFor="phone" className={labelClass}>
@@ -124,34 +161,25 @@ export default function VolunteerForm() {
             id="phone"
             name="phone"
             type="tel"
-            required
             dir="ltr"
+            maxLength={13}
             placeholder="0550123456"
-            className={`${inputClass} text-right`}
+            aria-invalid={!!errors.phone}
+            className={`${inputClass(!!errors.phone)} text-right`}
           />
+          <FieldError message={errors.phone} />
         </div>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-3">
-        <div>
-          <label htmlFor="wilaya" className={labelClass}>
-            الولاية *
-          </label>
-          <input id="wilaya" name="wilaya" required className={inputClass} />
-        </div>
-        <div>
-          <label htmlFor="daira" className={labelClass}>
-            الدائرة *
-          </label>
-          <input id="daira" name="daira" required className={inputClass} />
-        </div>
-        <div>
-          <label htmlFor="commune" className={labelClass}>
-            البلدية *
-          </label>
-          <input id="commune" name="commune" required className={inputClass} />
-        </div>
-      </div>
+      <AddressFields
+        errors={{
+          wilaya: errors.wilaya,
+          daira: errors.daira,
+          commune: errors.commune,
+        }}
+        inputClass={inputClass}
+        labelClass={labelClass}
+      />
 
       <fieldset>
         <legend className={labelClass}>في ماذا يمكنك المساعدة؟</legend>
@@ -175,7 +203,7 @@ export default function VolunteerForm() {
           name="other_skills"
           maxLength={150}
           placeholder="مهارات أخرى (اختياري)"
-          className={`${inputClass} mt-3`}
+          className={`${inputClass(false)} mt-3`}
         />
       </fieldset>
 
@@ -187,7 +215,7 @@ export default function VolunteerForm() {
           id="availability"
           name="availability"
           defaultValue=""
-          className={inputClass}
+          className={inputClass(false)}
         >
           <option value="">اختر</option>
           {availabilityOptions.map((opt) => (
@@ -198,17 +226,25 @@ export default function VolunteerForm() {
         </select>
       </div>
 
-      <label className="flex items-start gap-3">
-        <input type="checkbox" required className="mt-1 h-5 w-5 accent-ink" />
-        <span className="text-muted">
-          أوافق على أن تتواصل معي الجمعية بخصوص أنشطة التطوع، ولا تُشارك بياناتي
-          مع أي جهة أخرى.
-        </span>
-      </label>
+      <div>
+        <label className="flex items-start gap-3">
+          <input
+            id="consent"
+            name="consent"
+            type="checkbox"
+            className="mt-1 h-5 w-5 accent-ink"
+          />
+          <span className="text-muted">
+            أوافق على أن تتواصل معي الجمعية بخصوص أنشطة التطوع، ولا تُشارك
+            بياناتي مع أي جهة أخرى.
+          </span>
+        </label>
+        <FieldError message={errors.consent} />
+      </div>
 
-      {error && (
+      {submitError && (
         <p className="border border-ink bg-white px-4 py-3 font-semibold">
-          ⚠ {error}
+          ⚠ {submitError}
         </p>
       )}
 
