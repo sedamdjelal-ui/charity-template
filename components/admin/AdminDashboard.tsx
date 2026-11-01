@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import HelpRequestsPanel from "@/components/admin/HelpRequestsPanel";
+import BeneficiariesPanel from "@/components/admin/BeneficiariesPanel";
 import VolunteersPanel from "@/components/admin/VolunteersPanel";
 import CampaignsPanel from "@/components/admin/CampaignsPanel";
 import NewsPanel from "@/components/admin/NewsPanel";
@@ -12,6 +13,7 @@ import SettingsPanel from "@/components/admin/SettingsPanel";
 
 const tabs = [
   { id: "help", label: "طلبات المساعدة" },
+  { id: "beneficiaries", label: "المستفيدون" },
   { id: "volunteers", label: "المتطوعون" },
   { id: "campaigns", label: "الحملات" },
   { id: "news", label: "الأخبار" },
@@ -91,6 +93,7 @@ export default function AdminDashboard() {
 
       <div className="mt-6">
         {tab === "help" && <HelpRequestsPanel supabase={supabase} />}
+        {tab === "beneficiaries" && <BeneficiariesPanel supabase={supabase} />}
         {tab === "volunteers" && <VolunteersPanel supabase={supabase} />}
         {tab === "campaigns" && <CampaignsPanel supabase={supabase} />}
         {tab === "news" && <NewsPanel supabase={supabase} />}
