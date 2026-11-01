@@ -8,6 +8,7 @@ import VolunteersPanel from "@/components/admin/VolunteersPanel";
 import CampaignsPanel from "@/components/admin/CampaignsPanel";
 import NewsPanel from "@/components/admin/NewsPanel";
 import ActivitiesPanel from "@/components/admin/ActivitiesPanel";
+import SettingsPanel from "@/components/admin/SettingsPanel";
 
 const tabs = [
   { id: "help", label: "طلبات المساعدة" },
@@ -15,6 +16,7 @@ const tabs = [
   { id: "campaigns", label: "الحملات" },
   { id: "news", label: "الأخبار" },
   { id: "activities", label: "النشاطات" },
+  { id: "settings", label: "الإعدادات" },
 ];
 
 export default function AdminDashboard() {
@@ -93,6 +95,7 @@ export default function AdminDashboard() {
         {tab === "campaigns" && <CampaignsPanel supabase={supabase} />}
         {tab === "news" && <NewsPanel supabase={supabase} />}
         {tab === "activities" && <ActivitiesPanel supabase={supabase} />}
+        {tab === "settings" && <SettingsPanel supabase={supabase} />}
       </div>
     </div>
   );
