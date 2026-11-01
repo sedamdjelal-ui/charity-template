@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import VolunteerForm from "@/components/forms/VolunteerForm";
-import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: `تطوّع معنا | ${siteConfig.fullName}`,
+  title: "تطوّع معنا",
 };
 
 export default function VolunteerPage() {

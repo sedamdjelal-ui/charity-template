@@ -3,38 +3,38 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { siteConfig } from "@/config/site";
+import { navLinks } from "@/config/site";
 
 function resolveHref(href: string) {
   return href.startsWith("#") ? `/${href}` : href;
 }
 
-export default function Header() {
+type HeaderProps = {
+  name: string;
+  type: string;
+  fullName: string;
+  logo: string | null;
+};
+
+export default function Header({ name, type, fullName, logo }: HeaderProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-white">
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex flex-col leading-tight">
-          {siteConfig.logo ? (
-            <Image
-              src={siteConfig.logo}
-              alt={siteConfig.fullName}
-              width={140}
-              height={48}
-            />
+          {logo ? (
+            <Image src={logo} alt={fullName} width={140} height={48} />
           ) : (
             <>
-              <span className="font-heading text-2xl font-bold">
-                {siteConfig.name}
-              </span>
-              <span className="text-xs text-muted">{siteConfig.type}</span>
+              <span className="font-heading text-2xl font-bold">{name}</span>
+              <span className="text-xs text-muted">{type}</span>
             </>
           )}
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {siteConfig.nav.map((item) => (
+          {navLinks.map((item) => (
             <Link
               key={item.href}
               href={resolveHref(item.href)}
@@ -66,7 +66,7 @@ export default function Header() {
 
       {open && (
         <nav className="border-t border-line md:hidden">
-          {siteConfig.nav.map((item) => (
+          {navLinks.map((item) => (
             <Link
               key={item.href}
               href={resolveHref(item.href)}

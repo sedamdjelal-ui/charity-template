@@ -1,13 +1,13 @@
-import { siteConfig } from "@/config/site";
+import { getSettings } from "@/lib/settings";
 import CopyButton from "@/components/CopyButton";
 
-export default function Donate() {
-  const { donation, contact } = siteConfig;
+export default async function Donate() {
+  const { donation, contact } = await getSettings();
 
   const accounts = [
     { label: "الحساب البريدي الجاري CCP", value: donation.ccp },
     { label: "رقم الحساب RIP (للتحويل عبر بريدي موب)", value: donation.rip },
-  ];
+  ].filter((a) => a.value);
 
   return (
     <section id="donate" className="mx-auto max-w-4xl scroll-mt-24 px-4 py-20">
@@ -16,10 +16,12 @@ export default function Donate() {
           كيف تتبرّع
         </h2>
         <span className="mx-auto mt-4 block h-px w-16 bg-ink" />
-        <p className="mt-6 text-muted">
-          يمكنك التبرع بالتحويل إلى حساب الجمعية الرسمي باسم:{" "}
-          <span className="font-semibold text-ink">{donation.accountName}</span>
-        </p>
+        {donation.accountName && (
+          <p className="mt-6 text-muted">
+            يمكنك التبرع بالتحويل إلى حساب الجمعية الرسمي باسم:{" "}
+            <span className="font-semibold text-ink">{donation.accountName}</span>
+          </p>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -40,21 +42,27 @@ export default function Donate() {
       </div>
 
       <div className="mt-8 border-t border-line pt-8 text-center">
-        <p className="text-muted">
-          بعد التحويل، أرسل لنا صورة وصل الدفع لتأكيد تبرعك.
-        </p>
-        <a
-          href={`https://wa.me/${contact.whatsapp}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-block border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
-        >
-          إرسال الوصل عبر واتساب
-        </a>
-        <p className="mt-6 text-sm text-muted">
-          للتبرعات العينية (مواد غذائية، ملابس، أدوية) اتصل بنا على{" "}
-          <span dir="ltr">{contact.phone}</span>
-        </p>
+        {contact.whatsapp && (
+          <>
+            <p className="text-muted">
+              بعد التحويل، أرسل لنا صورة وصل الدفع لتأكيد تبرعك.
+            </p>
+            <a
+              href={`https://wa.me/${contact.whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-block border border-ink px-6 py-3 font-semibold transition-colors hover:bg-ink hover:text-white"
+            >
+              إرسال الوصل عبر واتساب
+            </a>
+          </>
+        )}
+        {contact.phone && (
+          <p className="mt-6 text-sm text-muted">
+            للتبرعات العينية (مواد غذائية، ملابس، أدوية) اتصل بنا على{" "}
+            <span dir="ltr">{contact.phone}</span>
+          </p>
+        )}
       </div>
     </section>
   );

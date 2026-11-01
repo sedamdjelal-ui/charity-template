@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import HelpForm from "@/components/forms/HelpForm";
-import { siteConfig } from "@/config/site";
+import { getSettings } from "@/lib/settings";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export const metadata: Metadata = {
-  title: `طلب مساعدة | ${siteConfig.fullName}`,
+  title: "طلب مساعدة",
 };
 
 async function HelpFormLoader() {
@@ -17,28 +17,35 @@ async function HelpFormLoader() {
     .order("sort_order", { ascending: true });
 
   const needTypes = [
-    ...(data ?? []).map((a) => ({ value: a.slug as string, label: a.title as string })),
+    ...(data ?? []).map((a) => ({
+      value: a.slug as string,
+      label: a.title as string,
+    })),
     { value: "other", label: "أخرى" },
   ];
 
   return <HelpForm needTypes={needTypes} />;
 }
 
-export default function HelpPage() {
+export default async function HelpPage() {
+  const { help } = await getSettings();
+
   return (
     <section className="mx-auto max-w-3xl px-4 py-16">
       <h1 className="font-heading text-4xl font-bold">طلب مساعدة</h1>
       <span className="mt-4 block h-px w-16 bg-ink" />
-      <p className="mt-6 leading-loose text-muted">{siteConfig.help.intro}</p>
+      <p className="mt-6 leading-loose text-muted">{help.intro}</p>
 
-      <div className="my-10 border border-line p-5">
-        <p className="font-semibold">الوثائق التي ستُطلب منك لاحقاً:</p>
-        <ul className="mt-3 list-inside list-disc space-y-1 text-muted">
-          {siteConfig.help.documents.map((doc) => (
-            <li key={doc}>{doc}</li>
-          ))}
-        </ul>
-      </div>
+      {help.documents.length > 0 && (
+        <div className="my-10 border border-line p-5">
+          <p className="font-semibold">الوثائق التي ستُطلب منك لاحقاً:</p>
+          <ul className="mt-3 list-inside list-disc space-y-1 text-muted">
+            {help.documents.map((doc, i) => (
+              <li key={`${doc}-${i}`}>{doc}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <Suspense
         fallback={<div className="h-96 animate-pulse border border-line" />}

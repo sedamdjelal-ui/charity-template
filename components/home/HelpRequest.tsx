@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { siteConfig } from "@/config/site";
+import { getSettings } from "@/lib/settings";
 
-export default function HelpRequest() {
-  const { help } = siteConfig;
+export default async function HelpRequest() {
+  const { help } = await getSettings();
 
   return (
     <section id="help" className="scroll-mt-24 border-y border-line">
@@ -21,22 +21,24 @@ export default function HelpRequest() {
           </Link>
         </div>
 
-        <div className="border border-ink p-6">
-          <h3 className="font-heading text-2xl font-bold">الوثائق المطلوبة</h3>
-          <ul className="mt-4">
-            {help.documents.map((doc, i) => (
-              <li
-                key={doc}
-                className="flex gap-4 border-b border-line py-3 last:border-b-0"
-              >
-                <span className="font-heading text-muted" dir="ltr">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span>{doc}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {help.documents.length > 0 && (
+          <div className="border border-ink p-6">
+            <h3 className="font-heading text-2xl font-bold">الوثائق المطلوبة</h3>
+            <ul className="mt-4">
+              {help.documents.map((doc, i) => (
+                <li
+                  key={`${doc}-${i}`}
+                  className="flex gap-4 border-b border-line py-3 last:border-b-0"
+                >
+                  <span className="font-heading text-muted" dir="ltr">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span>{doc}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </section>
   );
