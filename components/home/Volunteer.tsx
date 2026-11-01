@@ -1,10 +1,6 @@
-import { siteConfig } from "@/config/site";
+import Link from "next/link";
 
 export default function Volunteer() {
-  const message = encodeURIComponent(
-    `السلام عليكم، أرغب في التطوع مع ${siteConfig.fullName}.`
-  );
-
   return (
     <section className="bg-ink text-white">
       <div className="mx-auto flex max-w-4xl flex-col items-center px-4 py-20 text-center">
@@ -16,14 +12,12 @@ export default function Volunteer() {
           وقتك ومهارتك يمكن أن يغيّرا حياة عائلة. انضم إلى فريق المتطوعين وشارك
           في حملات التوزيع والتنظيم والتوعية.
         </p>
-        <a
-          href={`https://wa.me/${siteConfig.contact.whatsapp}?text=${message}`}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href="/volunteer"
           className="mt-10 bg-action px-8 py-4 font-semibold text-ink transition-colors hover:bg-action-hover"
         >
           سجّل كمتطوع
-        </a>
+        </Link>
       </div>
     </section>
   );
