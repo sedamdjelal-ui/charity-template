@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 
 export default async function Footer() {
@@ -68,8 +69,16 @@ export default async function Footer() {
       </div>
 
       <div className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-2 px-4 py-5 text-sm text-muted md:flex-row">
+        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-3 px-4 py-5 text-sm text-muted md:flex-row md:items-center">
           <span>© {s.fullName} — جميع الحقوق محفوظة</span>
+          <nav className="flex gap-6">
+            <Link href="/privacy" className="hover:text-ink">
+              سياسة الخصوصية
+            </Link>
+            <Link href="/terms" className="hover:text-ink">
+              شروط الاستخدام
+            </Link>
+          </nav>
           <a
             href="https://www.djellalco.com"
             target="_blank"
