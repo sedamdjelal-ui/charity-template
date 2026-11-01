@@ -236,7 +236,15 @@ export default function VolunteerForm() {
           />
           <span className="text-muted">
             أوافق على أن تتواصل معي الجمعية بخصوص أنشطة التطوع، ولا تُشارك
-            بياناتي مع أي جهة أخرى.
+            بياناتي مع أي جهة أخرى، وفق{" "}
+            <Link
+              href="/privacy"
+              target="_blank"
+              className="text-ink underline"
+            >
+              سياسة الخصوصية
+            </Link>
+            .
           </span>
         </label>
         <FieldError message={errors.consent} />

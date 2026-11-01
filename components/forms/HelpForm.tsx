@@ -255,7 +255,15 @@ export default function HelpForm({ needTypes }: { needTypes: NeedType[] }) {
           />
           <span className="text-muted">
             أوافق على أن تُستعمل بياناتي لدراسة طلبي فقط، ولا تُنشر أو تُشارك مع
-            أي جهة أخرى.
+            أي جهة أخرى، وفق{" "}
+            <Link
+              href="/privacy"
+              target="_blank"
+              className="text-ink underline"
+            >
+              سياسة الخصوصية
+            </Link>
+            .
           </span>
         </label>
         <FieldError message={errors.consent} />
