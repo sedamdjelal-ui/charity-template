@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Settings } from "@/lib/settings";
 import { refreshSettings } from "@/app/admin/actions";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 type Stat = { value: string; label: string };
 
@@ -93,6 +94,7 @@ export default function SettingsPanel({
 }) {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [stats, setStats] = useState<Stat[]>([]);
+  const [heroImage, setHeroImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -112,6 +114,7 @@ export default function SettingsPanel({
         const s = data.data as Settings;
         setSettings(s);
         setStats(s.stats ?? []);
+        setHeroImage(s.heroImage ?? null);
       }
       setLoading(false);
     }
@@ -141,6 +144,7 @@ export default function SettingsPanel({
       fullName: get("fullName"),
       tagline: get("tagline"),
       intro: get("intro"),
+      heroImage,
       approval: {
         number: get("approval_number"),
         authority: get("approval_authority"),
@@ -221,6 +225,16 @@ export default function SettingsPanel({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      <Section title="صورة الواجهة">
+        <ImageUpload
+          supabase={supabase}
+          folder="hero"
+          value={heroImage}
+          onChange={setHeroImage}
+          hint="تظهر خلف العنوان في أعلى الصفحة الرئيسية. يُفضّل صورة عريضة (1920×1080 تقريباً). تجنّب صور وجوه المستفيدين، خاصة الأطفال. بعد الرفع اضغط «حفظ الإعدادات»."
+        />
+      </Section>
+
       <Section title="هوية الجمعية">
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="الاسم المختصر" name="name" defaultValue={s.name} required maxLength={40} hint="يظهر في رأس الموقع، مثل: يد العون" />
@@ -307,7 +321,7 @@ export default function SettingsPanel({
             <button
               type="button"
               onClick={() => setStats((prev) => prev.filter((_, j) => j !== i))}
-              className="shrink-0 border border-ink px-4 font-semibold btn-outline"
+              className="btn-outline shrink-0 border border-ink px-4 font-semibold"
             >
               حذف
             </button>
@@ -317,7 +331,7 @@ export default function SettingsPanel({
           <button
             type="button"
             onClick={() => setStats((prev) => [...prev, { value: "", label: "" }])}
-            className="border border-ink px-4 py-2 font-semibold btn-outline"
+            className="btn-outline border border-ink px-4 py-2 font-semibold"
           >
             + إضافة رقم
           </button>

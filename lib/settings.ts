@@ -8,6 +8,7 @@ export type Settings = {
   tagline: string;
   intro: string;
   logo: string | null;
+  heroImage: string | null;
   approval: { number: string; authority: string };
   address: { wilaya: string; daira: string; commune: string; street: string };
   contact: { phone: string; whatsapp: string; email: string; facebook: string };
@@ -25,6 +26,7 @@ export const defaultSettings: Settings = {
   tagline: "معاً نصنع الفرق",
   intro: "",
   logo: null,
+  heroImage: null,
   approval: { number: "", authority: "" },
   address: { wilaya: "", daira: "", commune: "", street: "" },
   contact: { phone: "", whatsapp: "", email: "", facebook: "" },
