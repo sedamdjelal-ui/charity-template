@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import HelpRequestsPanel from "@/components/admin/HelpRequestsPanel";
 import VolunteersPanel from "@/components/admin/VolunteersPanel";
+import CampaignsPanel from "@/components/admin/CampaignsPanel";
 
 const tabs = [
   { id: "help", label: "طلبات المساعدة" },
   { id: "volunteers", label: "المتطوعون" },
+  { id: "campaigns", label: "الحملات" },
 ];
 
 export default function AdminDashboard() {
@@ -64,13 +66,13 @@ export default function AdminDashboard() {
       </div>
 
       {/* التبويبات */}
-      <div className="mt-8 flex border-b border-line">
+      <div className="mt-8 flex overflow-x-auto border-b border-line">
         {tabs.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`-mb-px px-5 py-3 font-heading text-xl ${
+            className={`-mb-px shrink-0 px-5 py-3 font-heading text-xl ${
               tab === t.id
                 ? "border-b-2 border-ink font-bold"
                 : "text-muted hover:text-ink"
@@ -82,11 +84,9 @@ export default function AdminDashboard() {
       </div>
 
       <div className="mt-6">
-        {tab === "help" ? (
-          <HelpRequestsPanel supabase={supabase} />
-        ) : (
-          <VolunteersPanel supabase={supabase} />
-        )}
+        {tab === "help" && <HelpRequestsPanel supabase={supabase} />}
+        {tab === "volunteers" && <VolunteersPanel supabase={supabase} />}
+        {tab === "campaigns" && <CampaignsPanel supabase={supabase} />}
       </div>
     </div>
   );
