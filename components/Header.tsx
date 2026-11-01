@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { navLinks } from "@/config/site";
 
 function resolveHref(href: string) {
@@ -18,9 +18,47 @@ type HeaderProps = {
 
 export default function Header({ name, type, fullName, logo }: HeaderProps) {
   const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+
+  // إخفاء الشريط عند النزول وإظهاره عند الصعود
+  useEffect(() => {
+    let lastY = 0;
+
+    function getY(e: Event) {
+      const target = e.target;
+      if (target instanceof HTMLElement) return target.scrollTop;
+      return window.scrollY || document.documentElement.scrollTop;
+    }
+
+    function onScroll(e: Event) {
+      const y = getY(e);
+      if (y < 80) {
+        setHidden(false); // قرب أعلى الصفحة: يظهر دائماً
+      } else if (y > lastY + 5) {
+        setHidden(true); // نزول
+        setOpen(false);
+      } else if (y < lastY - 5) {
+        setHidden(false); // صعود
+      }
+      lastY = y;
+    }
+
+    document.addEventListener("scroll", onScroll, {
+      passive: true,
+      capture: true,
+    });
+    return () =>
+      document.removeEventListener("scroll", onScroll, { capture: true });
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-white">
+    <header
+      className="sticky top-0 z-50 border-b border-line bg-white"
+      style={{
+        transform: hidden && !open ? "translateY(-100%)" : "translateY(0)",
+        transition: "transform 0.3s ease",
+      }}
+    >
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex flex-col leading-tight">
           {logo ? (
