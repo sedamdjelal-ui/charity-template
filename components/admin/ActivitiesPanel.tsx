@@ -2,12 +2,15 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 type Activity = {
   id: string;
   slug: string;
   title: string;
   description: string | null;
+  details: string | null;
+  image: string | null;
   enabled: boolean;
   sort_order: number;
 };
@@ -23,22 +26,28 @@ function newSlug() {
 }
 
 function ActivityForm({
+  supabase,
   initial,
   saving,
   onSave,
   onCancel,
 }: {
+  supabase: SupabaseClient;
   initial: ActivityInput;
   saving: boolean;
   onSave: (values: ActivityInput) => void;
   onCancel: () => void;
 }) {
+  const [image, setImage] = useState<string | null>(initial.image);
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
     onSave({
       title: String(d.get("title") || "").trim(),
       description: String(d.get("description") || "").trim() || null,
+      details: String(d.get("details") || "").trim() || null,
+      image,
       sort_order: Number(d.get("sort_order")) || 0,
       enabled: d.get("enabled") === "on",
     });
@@ -88,6 +97,37 @@ function ActivityForm({
           defaultValue={initial.description ?? ""}
           className={inputClass}
         />
+        <p className="mt-1 text-sm text-muted">
+          يظهر في خانة النشاط في الصفحة الرئيسية.
+        </p>
+      </div>
+
+      <div>
+        <label htmlFor="details" className={labelClass}>
+          التفاصيل الكاملة
+        </label>
+        <textarea
+          id="details"
+          name="details"
+          rows={8}
+          maxLength={5000}
+          defaultValue={initial.details ?? ""}
+          className={inputClass}
+        />
+        <p className="mt-1 text-sm text-muted">
+          تظهر في صفحة النشاط. اترك سطراً فارغاً بين الفقرات.
+        </p>
+      </div>
+
+      <div>
+        <p className={labelClass}>صورة النشاط</p>
+        <ImageUpload
+          supabase={supabase}
+          folder="activities"
+          value={image}
+          onChange={setImage}
+          hint="اختيارية. تجنّب صور وجوه المستفيدين، خاصة الأطفال. بعد الرفع اضغط «حفظ»."
+        />
       </div>
 
       <label className="flex items-center gap-3">
@@ -134,7 +174,7 @@ export default function ActivitiesPanel({
   const loadActivities = useCallback(async () => {
     const { data, error: dbError } = await supabase
       .from("activities")
-      .select("id, slug, title, description, enabled, sort_order")
+      .select("id, slug, title, description, details, image, enabled, sort_order")
       .order("sort_order", { ascending: true });
 
     if (dbError) {
@@ -242,9 +282,12 @@ export default function ActivitiesPanel({
       <div className="mt-6 space-y-4">
         {editingId === "new" && (
           <ActivityForm
+            supabase={supabase}
             initial={{
               title: "",
               description: "",
+              details: "",
+              image: null,
               enabled: true,
               sort_order: activities.length + 1,
             }}
@@ -265,6 +308,7 @@ export default function ActivitiesPanel({
             return (
               <ActivityForm
                 key={a.id}
+                supabase={supabase}
                 initial={a}
                 saving={saving}
                 onSave={handleSave}
@@ -283,10 +327,22 @@ export default function ActivitiesPanel({
                   <h3 className="font-heading text-xl font-bold">{a.title}</h3>
                   <p className="text-sm text-muted">
                     {a.enabled ? "ظاهر" : "مخفي"} · الترتيب {a.sort_order}
+                    {a.image && " · فيه صورة"}
+                    {a.details && " · فيه تفاصيل"}
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
+                  {a.enabled && (
+                    <a
+                      href={`/activities/${a.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="border border-ink px-4 py-2 text-sm font-semibold btn-outline"
+                    >
+                      عرض الصفحة ↗
+                    </a>
+                  )}
                   <button
                     type="button"
                     onClick={() => setEditingId(a.id)}
