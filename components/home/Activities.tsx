@@ -1,8 +1,10 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { createPublicClient } from "@/lib/supabase/public";
 
 type Activity = {
   id: string;
+  slug: string;
   title: string;
   description: string | null;
 };
@@ -11,7 +13,7 @@ async function ActivitiesList() {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("activities")
-    .select("id, title, description")
+    .select("id, slug, title, description")
     .eq("enabled", true)
     .order("sort_order", { ascending: true });
 
@@ -28,9 +30,10 @@ async function ActivitiesList() {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {activities.map((activity, i) => (
-        <article
+        <Link
           key={activity.id}
-          className="border border-ink p-6 btn-outline"
+          href={`/activities/${activity.slug}`}
+          className="btn-outline flex flex-col border border-ink p-6"
         >
           <p className="font-heading text-3xl text-muted" dir="ltr">
             {String(i + 1).padStart(2, "0")}
@@ -43,7 +46,10 @@ async function ActivitiesList() {
               {activity.description}
             </p>
           )}
-        </article>
+          <span className="mt-auto pt-6 text-sm font-semibold">
+            اقرأ المزيد ←
+          </span>
+        </Link>
       ))}
     </div>
   );
